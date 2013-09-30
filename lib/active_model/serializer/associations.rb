@@ -65,7 +65,13 @@ module ActiveModel
         if serializer_class
           serializer_class.new(object, serializer_options)
         elsif object.respond_to?(:active_model_serializer) && (ams = object.active_model_serializer)
-          ams.new(object, serializer_options)
+          options = serializer_options.except(:only, :include)
+
+          if serializer_options.key?(:include) && serializer_options[:include].include?(name)
+            options.merge!(serializer_options[:include][name])
+          end
+
+          ams.new(object, options)
         else
           object
         end
